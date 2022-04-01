@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using LeaveManagement.Web.Configuration;
+using LeaveManagement.Web.Contracts;
+using LeaveManagement.Web.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,13 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 builder.Services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+//Se registran nuestros repositorios y se permite que se puedan inyectar en nuestras clases sin necesidad de ILeaveTypeRepository y parecidos,
+//pero al agregar tambien el repositorio se sabe exactamente que se esta inyectando
+//(AddScoped da una nueva conexion, y una vez terminado con el se termina, significando que abre una conexion y la cierra cuando termina en lugar
+//de manejarla de maneras diferentes como Transient o Singlenton)
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
 
 //Permite agregar el automapper al builder para hacer legales los mapeos
 builder.Services.AddAutoMapper(typeof(MapperConfig));
