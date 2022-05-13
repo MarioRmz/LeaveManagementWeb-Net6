@@ -31,6 +31,7 @@ builder.Services.AddTransient<IEmailSender>(s => new EmailSender("localhost", 25
 //de manejarla de maneras diferentes como Transient o Singlenton)
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
+builder.Services.AddScoped<ILeaveAllocationRepository, LeaveAllocationRepository>();
 
 //Permite agregar el automapper al builder para hacer legales los mapeos
 builder.Services.AddAutoMapper(typeof(MapperConfig));

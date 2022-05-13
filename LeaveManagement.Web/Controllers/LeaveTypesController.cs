@@ -193,14 +193,18 @@ namespace LeaveManagement.Web.Controllers
         #region Con Refactor
         //Se agrega el contrato/interface para su uso y no mostrar lo que se hace directament con la db
         private readonly ILeaveTypeRepository leaveTypeRepository;
+        private readonly ILeaveAllocationRepository leaveAllocationRepository;
         //El mapeo lo hacemos con el fin de no interactuar con las clases originales del sistema
         private readonly IMapper mapper;
         //Inyecta la conexion a la base de datos por medio de _context y un mapper
         //Dependency inversion
-        public LeaveTypesController(ILeaveTypeRepository leaveTypeRepository, IMapper mapper)
+        public LeaveTypesController(ILeaveTypeRepository leaveTypeRepository, 
+            IMapper mapper,
+            ILeaveAllocationRepository leaveAllocationRepository)
         {
-            this.leaveTypeRepository = leaveTypeRepository;
+            this.leaveTypeRepository = leaveTypeRepository;            
             this.mapper = mapper;
+            this.leaveAllocationRepository = leaveAllocationRepository;
         }
 
         // GET: LeaveTypes
@@ -387,6 +391,14 @@ namespace LeaveManagement.Web.Controllers
         //    //return _context.LeaveTypes.Any(e => e.Id == id);
         //    return await leaveTypeRepository.Exist(id);
         //}       
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AllocateLeave(int id)
+        {
+            await leaveAllocationRepository.LeaveAllocation(id);
+            return RedirectToAction(nameof(Index));
+        }
         #endregion
     }
 }

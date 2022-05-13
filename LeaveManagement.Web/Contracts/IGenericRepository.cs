@@ -10,6 +10,7 @@
         //En este caso el task utiliza un entero si o si
         Task<T> AddAsync(T entity);
         //Task<int> GetCountAsync(); //Este comentado es sugerido, mas no se decidieron utilizar
+        Task AddRangeAsync(List<T> entities);
         Task<bool> Exist(int id);
         Task DeleteAsync(int id);
         Task UpdateAsync(T entity);

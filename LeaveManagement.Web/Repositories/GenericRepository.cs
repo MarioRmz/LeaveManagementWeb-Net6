@@ -22,6 +22,13 @@ namespace LeaveManagement.Web.Repositories
             return entity;
         }
 
+        public async Task AddRangeAsync(List<T> entities)
+        {
+            //Igual que AddAsync, con la diferencia que este permite agregar un listado
+            await context.AddRangeAsync(entities);
+            await context.SaveChangesAsync();
+        }
+
         public async Task DeleteAsync(int id)
         {
             //Al utilizar Set<T> establecemos que la tabla es generica, por lo que el sistema 
