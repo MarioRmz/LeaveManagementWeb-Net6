@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" /> @*Agregado para el datatable*@   
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" asp-append-version="true" /> @*Agregado para fontawesome*@   
     <link rel="stylesheet" href="~/lib/font-awesome/css/fontawesome.css" asp-append-version="true" /> @*Agregado para fontawesome*@   
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css"> @*Agregado para el jquery*@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LeaveManagement.Web.styles.css" asp-append-version="true" />
 </head>
@@ -25,12 +26,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="" asp-action="">Apply for Leave</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="" asp-action="">My Leave</a>
-                        </li>
+
+                        @*Se retira opciones innecesarias de la navbar del administrador*@
+                        @if(User.IsInRole(Roles.User))
+                        {
+                            <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="LeaveRequests" asp-action="Create">Apply for Leave</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="LeaveRequests" asp-action="MyLeave">My Leave</a>
+                            </li>
+                        }
+
                         @*Solo se ve si el usuario es administrador *@
                         @if(User.IsInRole(Roles.Administrator))
                         {
@@ -42,10 +49,8 @@
                                 Leave Management
                               </a>
                               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-controller="LeaveTypes" asp-action="Index">Leave Types</a></li>
-                                <li><a class="dropdown-item" href="#">Leave Allocations</a></li>        
-                                <li><a class="dropdown-item" href="#">Leave Requests</a></li>  
-                                <li><a class="dropdown-item" href="#">Employee Management</a></li>  
+                                <li><a class="dropdown-item" asp-controller="LeaveTypes" asp-action="Index">Leave Types</a></li>  
+                                <li><a class="dropdown-item" asp-controller="LeaveRequests" asp-action="Index">Leave Requests</a></li>  
                               </ul>
                             </li>
                         }                        
@@ -71,12 +76,19 @@
     <script src="~/lib/sweetalert/sweetalert.min.js"></script> @*Agregado para sweetalert*@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> @*Agregado para datatable*@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> @*Agregado para datatable*@
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script> @*Agregado para los datepickers*@
     <script>
         $(function(){
             //Codigo para el datatable apuntando a un elemento con la clase table
             //Al ponerlo aqui en _Layout, todas las vistas pueden llegar a tener si datatable si lo necesito,
             //evitandome tener que ponerla en cada vista manualmente
             $('.table').DataTable();
+
+            //Activa el nuevo componente usando la clase datepicker
+            //Tambien se establece un formato de fecha
+            $(".datepicker").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
         });
     </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
