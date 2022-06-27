@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using LeaveManagement.Web.Constants;
 using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Data;
@@ -23,13 +24,18 @@ namespace LeaveManagement.Web.Repositories
         private readonly ApplicationDbContext context;           
         private readonly UserManager<Employee> userManager;
         private readonly ILeaveTypeRepository leaveTypeRepository;
+        private readonly AutoMapper.IConfigurationProvider configurationProvider; //Para el ProjectTo se inyecta este
         private readonly IMapper mapper;
         public LeaveAllocationRepository(ApplicationDbContext context, 
-            UserManager<Employee> userManager, ILeaveTypeRepository leaveTypeRepository, IMapper mapper) : base(context)
+            UserManager<Employee> userManager, 
+            ILeaveTypeRepository leaveTypeRepository, 
+            AutoMapper.IConfigurationProvider configurationProvider,
+            IMapper mapper) : base(context)
         {
             this.context = context;
             this.userManager = userManager;
             this.leaveTypeRepository = leaveTypeRepository;
+            this.configurationProvider = configurationProvider;
             this.mapper = mapper;
         }
 
@@ -46,14 +52,19 @@ namespace LeaveManagement.Web.Repositories
             //Equivale a un inner join para traer los leave type
             var allocations = await context.LeaveAllocations
                 .Include(q => q.LeaveType)
-                .Where(q => q.EmployeeId == employeeId).ToListAsync();
+                .Where(q => q.EmployeeId == employeeId)
+                .ProjectTo<LeaveAllocationVM>(configurationProvider) //<-- Al usar esta proyeccion, trae especificamente los campos requeridos
+                .ToListAsync();                                      //sin hacerle un select
 
             var employee = await userManager.FindByIdAsync(employeeId);
 
             //Mapeamos los resultados para que la info del empleado se acomode a EmployeeAllocationVM y este contenga un listado de LeaveAllocationVM
             var employeeAllocationModel = mapper.Map<EmployeeAllocationVM>(employee);
-            employeeAllocationModel.LeaveAllocations = mapper.Map<List<LeaveAllocationVM>>(allocations);
-
+            employeeAllocationModel.LeaveAllocations = allocations; //mapper.Map<List<LeaveAllocationVM>>(allocations);
+                                                                    //Al usar la proyeccion el return type se vuelve exactamente LeaveAllocationVM,
+                                                                    //por lo que no se necesita mapearse ya
+                                                                    //NOTA: Para hacer comodamente la proyeccion hay que estar seguros de que 
+                                                                    //este configurado en Program.cs y MapperConfig.cs correctamente
             return employeeAllocationModel;
         }
 

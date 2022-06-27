@@ -9,10 +9,14 @@ namespace LeaveManagement.Web.Models
         //respectivos datepickers aparezcan fechas default
         [Required]
         [Display(Name = "Fecha Inicio")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
+        [DataType(DataType.Date)]
         public DateTime? StartDate { get; set; }
 
         [Required]
         [Display(Name = "Fecha Fin")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
+        [DataType(DataType.Date)]
         public DateTime? EndDate { get; set; }
         
         [Required]
