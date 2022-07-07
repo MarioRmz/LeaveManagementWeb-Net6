@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using LeaveManagement.Web.Data;
+using LeaveManagement.Data;
 using AutoMapper;
-using LeaveManagement.Web.Models;
-using LeaveManagement.Web.Contracts;
+using LeaveManagement.Common.Models;
+using LeaveManagement.Application.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using LeaveManagement.Web.Constants;
+using LeaveManagement.Common.Constants;
 
 namespace LeaveManagement.Web.Controllers
 {
@@ -324,12 +324,28 @@ namespace LeaveManagement.Web.Controllers
                 return NotFound();
             }
 
+            //Hacemos la consulta aca para hacer un null check antes de proseguir
+            var leaveType = await leaveTypeRepository.GetAsync(id);
+            if (leaveType == null)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     //Mapeo al tipo original desde el viewmodel
-                    var leaveType = mapper.Map<LeaveType>(leaveTypeVM);
+                    //NOTA: Al haber hecho el override en ApplicationDbContext (el auditing) se esta creando una situacion en la que
+                    //la entidad LeaveTypeVM no contiene los campos DateModified y DateCreated, por lo mismo al mapear las entidades
+                    //estos 2 campos quedan por default, y al llegar al auditing solo DateModified es actualizado, mientras que 
+                    //DateCreated queda en default (0001-01-01), por lo que se necesita modificar el proceso comentado
+                    //var leaveType = mapper.Map<LeaveType>(leaveTypeVM);
+                    //var leaveType = await leaveTypeRepository.GetAsync(id);
+
+                    //Este mapeo compara a los 2, revisa los campos que tengan en comun y mueve los campos correspondientes de la izquierda a la derecha
+                    //Con esto estariamos actualizando el registro original sin tener que estar lidiando con campos default
+                    mapper.Map(leaveTypeVM, leaveType);
 
                     //_context.Update(leaveType);
                     //await _context.SaveChangesAsync();

@@ -1,12 +1,13 @@
-using LeaveManagement.Web.Data;
+using LeaveManagement.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using LeaveManagement.Web.Configuration;
-using LeaveManagement.Web.Contracts;
-using LeaveManagement.Web.Repositories;
+using LeaveManagement.Application.Configuration;
+using LeaveManagement.Application.Contracts;
+using LeaveManagement.Application.Repositories;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using LeaveManagement.Web.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,9 +41,18 @@ builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 //Permite agregar el automapper al builder para hacer legales los mapeos
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
+//Usa el serilog para que escriba la informacion en consola y los appsettings (la configuracion que escribimos en appsettings.json)
+//Con esto podemos tener registros de que sucedio en caso de un error tambien
+//Logeo de logs/registros, no de logging/ingresar
+builder.Host.UseSerilog((ctx, lc) => 
+    lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+//Esta linea invoca el use serilog de arriba 
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

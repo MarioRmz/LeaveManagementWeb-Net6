@@ -95,11 +95,14 @@
                     @*@Html.DisplayFor(modelItem => item.Approved)*@
             </td>
             <td>
-                @if(item.Approved == null)
-                {
-                    @*<a asp-action="Cancel" class="btn btn-danger btn-sm" asp-route-id="@item.Id">Cancelar Solicitud</a>   *@
-                    <form>
-                        <input asp-form="@item.Id" type="hidden" />
+                @*<a asp-action="Cancel" class="btn btn-danger btn-sm" asp-route-id="@item.Id">Cancelar Solicitud</a>   *@
+
+                @if(item.Approved == null && item.Cancelled == false)
+                { 
+                    <form asp-action="Cancel">
+                        @*Tambien se necesita que, ademas del asp-action en el form y el asp-for en el input, el name 
+                        sea igual al nombre que recibe el metodo del lado del controlador (en este caso 'id')*@
+                        <input asp-for="@item.Id" name="id" type="hidden" />
                         <button type="submit" class="btn btn-danger btn-sm">Cancelar Solicitud</button>
                     </form>
                 }
